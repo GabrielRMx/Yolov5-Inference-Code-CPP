@@ -1,105 +1,105 @@
-# Yolo-v5 demo
+# Demostración de Yolo-v5
 
-## 导出rknn模型
+## Exportar modelo rknn
 
-请参考 https://github.com/airockchip/rknn_model_zoo/tree/main/models/vision/object_detection/yolov5-pytorch
-
-
-
-## 注意事项
-
-1. 使用rknn-toolkit2版本大于等于1.1.2。
-2. 切换成自己训练的模型时，请注意对齐anchor等后处理参数，否则会导致后处理解析出错。
-3. 官网和rk预训练模型都是检测80类的目标，如果自己训练的模型,需要更改include/postprocess.h中的OBJ_CLASS_NUM以及NMS_THRESH,BOX_THRESH后处理参数。
-5. demo需要librga.so的支持,编译使用请参考https://github.com/rockchip-linux/linux-rga
-5. 由于硬件限制，该demo的模型默认把 yolov5 模型的后处理部分，移至cpu实现。本demo附带的模型均使用relu为激活函数，相比silu激活函数精度略微下降，性能大幅上升。
+Consulte https://github.com/airockchip/rknn_model_zoo/tree/main/models/vision/object_detection/yolov5-pytorch
 
 
 
-## Android Demo
+## Precauciones
 
-### 编译
+1. Utilice la versión rknn-toolkit2 mayor o igual a 1.1.2.
+2. Cuando cambie a un modelo entrenado por usted mismo, preste atención a alinear los parámetros de posprocesamiento, como el ancla; de lo contrario, se producirán errores de análisis de posprocesamiento.
+3. Tanto el sitio web oficial como los modelos de preentrenamiento de rk tienen el objetivo de detectar 80 categorías. Si entrena el modelo usted mismo, debe cambiar los parámetros de posprocesamiento OBJ_CLASS_NUM y NMS_THRESH, BOX_THRESH en include/postprocess.h.
+5. La demostración requiere el soporte de librga.so. Para su compilación y uso, consulte https://github.com/rockchip-linux/linux-rga
+5. Debido a limitaciones de hardware, el modelo de demostración traslada la parte de posprocesamiento del modelo yolov5 a la implementación de CPU de forma predeterminada. Todos los modelos incluidos en esta demostración utilizan relu como función de activación. En comparación con la función de activación silu, la precisión es ligeramente menor y el rendimiento ha mejorado significativamente.
 
-根据指定平台修改 `build-android_<TARGET_PLATFORM>.sh`中的Android NDK的路径 `ANDROID_NDK_PATH`，<TARGET_PLATFORM>可以是RK356X或RK3588 例如修改成：
+
+
+## Demostración de Android
+
+### compilar
+
+Modifique la ruta del NDK de Android `ANDROID_NDK_PATH` en `build-android_<TARGET_PLATFORM>.sh` según la plataforma especificada. <TARGET_PLATFORM> puede ser RK356X o RK3588. Por ejemplo, cámbielo a:
 
 ```sh
 ANDROID_NDK_PATH=~/opt/tool_chain/android-ndk-r17
 ```
 
-然后执行：
+Luego ejecuta:
 
 ```sh
 ./build-android_<TARGET_PLATFORM>.sh
 ```
 
-### 推送执行文件到板子
+### Empuje el archivo ejecutable al tablero
 
-连接板子的usb口到PC,将整个demo目录到 `/data`:
+Conecte el puerto USB de la placa a la PC y mueva todo el directorio de demostración a `/data`:
 
 ```sh
-adb root
-adb remount
-adb push install/rknn_yolov5_demo /data/
+raíz adb
+remontar adb
+adb push install/rknn_yolov5_demo /datos/
 ```
 
-### 运行
+### Correr
 
 ```sh
-adb shell
-cd /data/rknn_yolov5_demo/
+shell adb
+cd /datos/rknn_yolov5_demo/
 
-export LD_LIBRARY_PATH=./lib
+exportar LD_LIBRARY_PATH=./lib
 ./rknn_yolov5_demo model/<TARGET_PLATFORM>/yolov5s-640-640.rknn model/bus.jpg
 ```
 
-## Aarch64 Linux Demo
+## Demostración de Aarch64 Linux
 
-### 编译
+### compilar
 
-根据指定平台修改 `build-linux_<TARGET_PLATFORM>.sh`中的交叉编译器所在目录的路径 `TOOL_CHAIN`，例如修改成
+Modifique la ruta `TOOL_CHAIN` en el directorio donde se encuentra el compilador cruzado en `build-linux_<TARGET_PLATFORM>.sh` según la plataforma especificada, por ejemplo, cámbiela a
 
 ```sh
-export TOOL_CHAIN=~/opt/tool_chain/gcc-9.3.0-x86_64_aarch64-linux-gnu/host
+exportar TOOL_CHAIN=~/opt/tool_chain/gcc-9.3.0-x86_64_aarch64-linux-gnu/host
 ```
 
-然后执行：
+Luego ejecuta:
 
 ```sh
 ./build-linux_<TARGET_PLATFORM>.sh
 ```
 
-### 推送执行文件到板子
+### Empuje el archivo ejecutable al tablero
 
 
-将 install/rknn_yolov5_demo_Linux 拷贝到板子的/userdata/目录.
+Copie install/rknn_yolov5_demo_Linux al directorio /userdata/ de la placa.
 
-- 如果使用rockchip的EVB板子，可以使用adb将文件推到板子上：
+- Si usas la placa EVB de Rockchip, puedes usar adb para enviar archivos a la placa:
 
 ```
 adb push install/rknn_yolov5_demo_Linux /userdata/
 ```
 
-- 如果使用其他板子，可以使用scp等方式将install/rknn_yolov5_demo_Linux拷贝到板子的/userdata/目录
+- Si usa otras placas, puede usar scp u otros métodos para copiar install/rknn_yolov5_demo_Linux al directorio /userdata/ de la placa
 
-### 运行
+### Correr
 
 ```sh
-adb shell
-cd /userdata/rknn_yolov5_demo_Linux/
+shell adb
+cd /datos de usuario/rknn_yolov5_demo_Linux/
 
-export LD_LIBRARY_PATH=./lib
+exportar LD_LIBRARY_PATH=./lib
 ./rknn_yolov5_demo model/<TARGET_PLATFORM>/yolov5s-640-640.rknn model/bus.jpg
 ```
 
-Note: Try searching the location of librga.so and add it to LD_LIBRARY_PATH if the librga.so is not found on the lib folder.
-Using the following commands to add to LD_LIBRARY_PATH.
+Nota: Intente buscar la ubicación de librga.so y agréguela a LD_LIBRARY_PATH si librga.so no se encuentra en la carpeta lib.
+Usando los siguientes comandos para agregar a LD_LIBRARY_PATH.
 
 ```sh
-export LD_LIBRARY_PATH=./lib:<LOCATION_LIBRGA.SO>
+exportar LD_LIBRARY_PATH=./lib:<LOCATION_LIBRGA.SO>
 ```
 
 
 
-### 注意
+### Aviso
 
-- 需要根据系统的rga驱动选择正确的librga库，具体依赖请参考： https://github.com/airockchip/librga
+- Debe seleccionar la biblioteca librga correcta según el controlador rga del sistema. Para dependencias específicas, consulte: https://github.com/airockchip/librga
